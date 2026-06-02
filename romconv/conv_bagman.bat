@@ -4,8 +4,8 @@ echo Bagman Unpack roms
 python ./unpack.py bagmanm2.zip
 if errorlevel 1 goto :error
 
-rem echo Bagman Logos
-rem python ./logoconv.py ../logos/bagman.png ../source/src/machines/bagman/bagman_logo.h
+echo Bagman Logos
+python ./logoconv.py ../logos/bagman.png ../source/src/machines/bagman/bagman_logo.h
 if errorlevel 1 goto :error
 
 echo Bagman CPU code

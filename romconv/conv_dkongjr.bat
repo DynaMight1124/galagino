@@ -4,8 +4,8 @@ echo Donkey Kong Junior Unpack roms
 python ./unpack.py dkongjrj.zip
 if errorlevel 1 goto :error
 
-rem echo Donkey Kong Junior Logos
-rem python ./logoconv.py ../logos/dkongjr.png ../source/src/machines/dkongjr/dkongjr_logo.h
+echo Donkey Kong Junior Logos
+python ./logoconv.py ../logos/dkongjr.png ../source/src/machines/dkongjr/dkongjr_logo.h
 
 if errorlevel 1 goto :error
 cd dkongjr

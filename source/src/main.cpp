@@ -22,7 +22,7 @@
   #include "emulation/led.h"
 #endif
 
-signed char machinesCount = (signed char)(sizeof(machines) / sizeof(unsigned short*));
+signed char machinesCount = (signed char)(sizeof(machines) / sizeof(machines[0]));
 
 machineBase *currentMachine;
 

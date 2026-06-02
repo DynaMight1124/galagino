@@ -4,8 +4,8 @@ echo Gyruss Unpack roms
 python ./unpack.py gyruss.zip
 if errorlevel 1 goto :error
 
-rem echo Gyruus Logos
-rem python ./logoconv.py ../logos/gyruss.png ../source/src/machines/gyruss/gyruss_logo.h
+echo Gyruus Logos
+python ./logoconv.py ../logos/gyruss.png ../source/src/machines/gyruss/gyruss_logo.h
 if errorlevel 1 goto :error
 
 echo Converting Gyruss

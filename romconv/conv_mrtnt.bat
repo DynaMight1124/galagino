@@ -4,8 +4,8 @@ echo MrTNT Unpack roms
 python ./unpack.py mrtnt.zip
 if errorlevel 1 goto :error
 
-rem echo MrTNT Logos
-rem python ./logoconv.py ../logos/mrtnt.png ../source/src/machines/mrtnt/mrtnt_logo.h
+echo MrTNT Logos
+python ./logoconv.py ../logos/mrtnt.png ../source/src/machines/mrtnt/mrtnt_logo.h
 if errorlevel 1 goto :error
 
 echo MrTNT CPU code

@@ -4,8 +4,8 @@ echo Pacman Unpack roms
 python ./unpack.py pacman.zip
 if errorlevel 1 goto :error
 
-rem echo Pacman Logos
-rem python ./logoconv.py ../logos/pacman.png ../source/src/machines/pacman/pacman_logo.h
+echo Pacman Logos
+python ./logoconv.py ../logos/pacman.png ../source/src/machines/pacman/pacman_logo.h
 if errorlevel 1 goto :error
 
 echo Pacman CPU code

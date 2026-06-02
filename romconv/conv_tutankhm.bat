@@ -4,8 +4,8 @@ echo Tutankm Unpack roms
 python ./unpack.py tutankhm.zip
 if errorlevel 1 goto :error
 
-rem echo Tutankhm Logos
-rem python ./logoconv.py ../logos/tutankhm.png ../source/src/machines/tutankhm/tutankhm_logo.h
+echo Tutankhm Logos
+python ./logoconv.py ../logos/tutankhm.png ../source/src/machines/tutankhm/tutankhm_logo.h
 if errorlevel 1 goto :error
 
 echo Converting Tutancham

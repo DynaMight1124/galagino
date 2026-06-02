@@ -4,8 +4,8 @@ echo Galaxian Unpack roms
 python ./unpack.py galaxian.zip
 if errorlevel 1 goto :error
 
-rem echo Galaxian Logos
-rem python ./logoconv.py ../logos/galaxian.png ../source/src/machines/galaxian/galaxian_logo.h
+echo Galaxian Logos
+python ./logoconv.py ../logos/galaxian.png ../source/src/machines/galaxian/galaxian_logo.h
 if errorlevel 1 goto :error
 
 echo Converting Galaxian

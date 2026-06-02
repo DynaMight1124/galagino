@@ -4,8 +4,8 @@ echo Lizwiz Unpack roms
 python ./unpack.py lizwiz.zip
 if errorlevel 1 goto :error
 
-rem echo Lizwiz Logos
-rem python ./logoconv.py ../logos/lizwiz.png ../source/src/machines/lizwiz/lizwiz_logo.h
+echo Lizwiz Logos
+python ./logoconv.py ../logos/lizwiz.png ../source/src/machines/lizwiz/lizwiz_logo.h
 if errorlevel 1 goto :error
 
 echo Lizwiz CPU code

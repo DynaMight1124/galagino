@@ -2,7 +2,12 @@
 
 void Input::init(char SingleMachine) {
   singleMachine = SingleMachine;
-#ifndef NUNCHUCK_INPUT
+  virtual_coin_state = 0;
+#ifdef MCP23017_INPUT
+  mcp.setup();
+#elif defined(NUNCHUCK_INPUT)
+  nunchuck.setup();
+#else
   pinMode(BTN_START_PIN, INPUT_PULLUP);
   #ifdef BTN_COIN_PIN
     pinMode(BTN_COIN_PIN, INPUT_PULLUP);
@@ -12,8 +17,6 @@ void Input::init(char SingleMachine) {
   pinMode(BTN_DOWN_PIN, INPUT_PULLUP);
   pinMode(BTN_UP_PIN, INPUT_PULLUP);
   pinMode(BTN_FIRE_PIN, INPUT_PULLUP);
-#else
-  nunchuck.setup();
 #endif
 
   char inputs = buttons_get();
@@ -29,11 +32,10 @@ char Input::demoSoundsOff() {
 }
 
 unsigned char Input::buttons_get(void) {
-  // galagino can be compiled without coin button. This will then
-  // be implemented by the start button. Whenever the start button 
-  // is pressed, a virtual coin button will be sent first 
   unsigned char input_states = 0;
-#ifdef NUNCHUCK_INPUT
+#ifdef MCP23017_INPUT
+  input_states = mcp.getInput();
+#elif defined(NUNCHUCK_INPUT)
   input_states = nunchuck.getInput();  
 #else
   #ifdef BTN_COIN_PIN
@@ -49,51 +51,60 @@ unsigned char Input::buttons_get(void) {
     (digitalRead(BTN_FIRE_PIN) ? 0 : BUTTON_FIRE);
 #endif
   
+  // Capture physical EXTRA button state for the Virtual Coin state machine
+  bool extraPhysicalPressed = (input_states & BUTTON_EXTRA);
+
   unsigned char startAndCoinState = 0;
-#ifdef BTN_COIN_PIN
-  // there is a coin pin -> coin and start work normal
-  startAndCoinState = (digitalRead(BTN_START_PIN) ? 0 : BUTTON_START) |
-    (digitalRead(BTN_COIN_PIN) ? 0 : BUTTON_COIN);
-#else
+
+  // Virtual Coin State Machine (The "Extra" button logic)
   switch(virtual_coin_state)  {
     case 0:  // idle state
-      if(input_states & BUTTON_EXTRA) {
+      if(extraPhysicalPressed) {
         virtual_coin_state = 1;   // virtual coin pressed
         virtual_coin_timer = millis();
       }
       break;
     case 1:  // start was just pressed
-      // check if 100 milliseconds have passed
       if(millis() - virtual_coin_timer > 100) {
         virtual_coin_state = 2;   // virtual coin released
         virtual_coin_timer = millis();        
       }
       break;
     case 2:  // virtual coin was released
-      // check if 500 milliseconds have passed
       if(millis() - virtual_coin_timer > 500) {
         virtual_coin_state = 3;   // pause between virtual coin an start ended
         virtual_coin_timer = millis();        
       }
       break;
     case 3:  // pause ended
-      // check if 100 milliseconds have passed
       if(millis() - virtual_coin_timer > 100) {
         virtual_coin_state = 4;   // virtual start ended
         virtual_coin_timer = millis();        
       }
       break;
     case 4:  // virtual start has ended
-      // check if start button is actually still pressed
-      if(!(input_states & BUTTON_EXTRA))
+      if(!extraPhysicalPressed)
         virtual_coin_state = 0;   // button has been released, return to idle
       break;
   }
-  startAndCoinState = ((virtual_coin_state != 1) ? 0 : BUTTON_COIN) | (((virtual_coin_state != 3) && (virtual_coin_state != 4)) ? 0 : BUTTON_START); 
+  
+  startAndCoinState = ((virtual_coin_state != 1) ? 0 : BUTTON_COIN) | 
+                      (((virtual_coin_state != 3) && (virtual_coin_state != 4)) ? 0 : BUTTON_START);
+
+  // If MCP23017 is used, allow hardware start/coin pins as well
+#ifdef MCP23017_INPUT
+  startAndCoinState |= (input_states & (BUTTON_START | BUTTON_COIN));
+#elif defined(BTN_COIN_PIN)
+  // standard pins
+  startAndCoinState |= (digitalRead(BTN_START_PIN) ? 0 : BUTTON_START) |
+    (digitalRead(BTN_COIN_PIN) ? 0 : BUTTON_COIN);
 #endif
 
+  // Clean up input_states for return, but KEEP BUTTON_EXTRA for reset check below
+  input_states &= ~(BUTTON_START | BUTTON_COIN);
+
   // volume control
-  if ((input_states & BUTTON_EXTRA) && _volume_callback) {
+  if (extraPhysicalPressed && _volume_callback) {
     _volume_callback(input_states & BUTTON_UP, input_states & BUTTON_DOWN);
     
     if ((input_states & BUTTON_UP) | (input_states & BUTTON_DOWN))
@@ -101,22 +112,19 @@ unsigned char Input::buttons_get(void) {
   }
 
   if (!singleMachine) {
-    bool buttonExtraRisingEdge = (input_states && BUTTON_EXTRA) && !(input_states_last && BUTTON_EXTRA); 
-    bool buttonUpRisingEdge = (input_states && BUTTON_UP) && !(input_states_last && BUTTON_UP); 
-    bool buttonDownRisingEdge = (input_states && BUTTON_DOWN) && !(input_states_last && BUTTON_DOWN); 
+    bool buttonExtraRisingEdge = extraPhysicalPressed && !(input_states_last & BUTTON_EXTRA); 
+    bool buttonUpRisingEdge = (input_states & BUTTON_UP) && !(input_states_last & BUTTON_UP); 
+    bool buttonDownRisingEdge = (input_states & BUTTON_DOWN) && !(input_states_last & BUTTON_DOWN); 
 
-    // joystick up/down (menu) or extra disables attract mode
     if (buttonUpRisingEdge | buttonDownRisingEdge | buttonExtraRisingEdge ) {
       if (_doAttractReset_callback)
         _doAttractReset_callback();  
     }
 
-    // reset control
-    if(input_states & BUTTON_EXTRA) {
+    if(extraPhysicalPressed) {
       if(!reset_timer)
         reset_timer = millis();
     
-      // reset if coin (or start if no coin is configured) is held for more than 3 seconds
       if(millis() - reset_timer > 3000) {
         reset_timer = millis();
         if (_doReset_callback)
@@ -126,7 +134,8 @@ unsigned char Input::buttons_get(void) {
     else
       reset_timer = 0;
 
-    input_states_last = input_states;
+    // Track state for rising edge detection
+    input_states_last = (input_states & ~BUTTON_EXTRA) | (extraPhysicalPressed ? BUTTON_EXTRA : 0);
   }
 
   if (firePressedAtStart && input_states & BUTTON_FIRE) {
@@ -138,7 +147,8 @@ unsigned char Input::buttons_get(void) {
     firePressedAtStart = false;
   }
 
-  return input_states | startAndCoinState;
+  // Return merged state without physical EXTRA button (handled internally)
+  return (input_states & ~BUTTON_EXTRA) | startAndCoinState;
 }
 
 Input &Input::onVolumeUpDown(THandlerVolume fn) {

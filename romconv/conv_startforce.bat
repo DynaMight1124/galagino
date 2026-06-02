@@ -4,8 +4,8 @@ echo Star Force Unpack roms
 python ./unpack.py starforc.zip
 if errorlevel 1 goto :error
 
-rem echo Star Force Logos
-rem python ./logoconv.py ../logos/starforce.png ../source/src/machines/starforce/starforce_logo.h
+echo Star Force Logos
+python ./logoconv.py ../logos/starforce.png ../source/src/machines/starforce/starforce_logo.h
 if errorlevel 1 goto :error
 
 cd starforce

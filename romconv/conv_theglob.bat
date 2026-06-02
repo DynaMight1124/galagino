@@ -4,8 +4,8 @@ echo TheGlob Unpack roms
 python ./unpack.py theglobp.zip
 if errorlevel 1 goto :error
 
-rem echo TheGlob Logos
-rem python ./logoconv.py ../logos/theglob.png ../source/src/machines/theglob/theglob_logo.h
+echo TheGlob Logos
+python ./logoconv.py ../logos/theglob.png ../source/src/machines/theglob/theglob_logo.h
 if errorlevel 1 goto :error
 
 echo TheGlob CPU code
