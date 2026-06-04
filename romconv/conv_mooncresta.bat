@@ -4,8 +4,8 @@ echo Moon Cresta Unpack roms
 python ./unpack.py mooncrst.zip
 if errorlevel 1 goto :error
 
-rem echo Moon Cresta Logos
-rem python ./logoconv.py ../logos/mooncresta.png ../source/src/machines/mooncresta/mooncresta_logo.h
+echo Moon Cresta Logos
+python ./logoconv.py ../logos/mooncresta.png ../source/src/machines/mooncresta/mooncresta_logo.h
 
 echo Converting Moon Cresta
 cd mooncresta
