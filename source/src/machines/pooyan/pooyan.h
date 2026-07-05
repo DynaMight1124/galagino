@@ -51,24 +51,6 @@ public:
 
 	signed char machineType() override { return MCH_POOYAN; }
 
-	// persistent high scores. rdZ80/wrZ80 dispatch on current_cpu, which the
-	// emulation task flips mid-frame on the other core — access memory[]
-	// directly instead. Covers color (0x8000), video (0x8400) and work
-	// (0x8800-0x8FFF) RAM, which is all the hiscore regions use.
-	const char *hiscoreKey() override { return "pooyan"; }
-	const hiscore_region_S *hiscoreRegions(unsigned char *count) override;
-	void hiscoreRestored() override;
-	unsigned char hiscoreRead(unsigned short addr) override {
-		if (addr < 0x8400) return memory[POOYAN_COLORRAM + (addr & 0x03FF)];
-		if (addr < 0x8800) return memory[POOYAN_VIDEORAM + (addr & 0x03FF)];
-		return memory[POOYAN_WORKRAM + (addr & 0x07FF)];
-	}
-	void hiscoreWrite(unsigned short addr, unsigned char value) override {
-		if (addr < 0x8400)      memory[POOYAN_COLORRAM + (addr & 0x03FF)] = value;
-		else if (addr < 0x8800) memory[POOYAN_VIDEORAM + (addr & 0x03FF)] = value;
-		else                    memory[POOYAN_WORKRAM  + (addr & 0x07FF)] = value;
-	}
-
 	unsigned char rdZ80(unsigned short Addr) override;
 	void wrZ80(unsigned short Addr, unsigned char Value) override;
 	unsigned char opZ80(unsigned short Addr) override;
