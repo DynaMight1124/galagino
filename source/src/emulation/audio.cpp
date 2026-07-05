@@ -52,6 +52,10 @@ void Audio::start(machineBase *machineBase) {
   else if (machineType == MCH_TUTANKHM)   { AY = 2; AY_INC = 7; AY_VOL = 7;  }
   else if (machineType == MCH_SCRAMBLE)   { AY = 2; AY_INC = 8; AY_VOL = 7;  }
   else if (machineType == MCH_SUPERCOBRA) { AY = 2; AY_INC = 8; AY_VOL = 7;  }
+  else if (machineType == MCH_TURTLES)    { AY = 2; AY_INC = 8; AY_VOL = 7;  }
+  else if (machineType == MCH_AMIDAR)    { AY = 2; AY_INC = 8; AY_VOL = 7;  }
+  else if (machineType == MCH_ROCNROPE)  { AY = 2; AY_INC = 8; AY_VOL = 7;  }
+  else if (machineType == MCH_POOYAN)    { AY = 2; AY_INC = 9; AY_VOL = 5;  }
 
   for(char ay = 0; ay < NUM_AY_CHIPS; ay++) {
     for (int c = 0; c < 4; c++) {
@@ -119,7 +123,7 @@ void Audio::transmit() {
       ay_render_buffer();
     else if (currentMachine->hasNamcoAudio())
       namco_render_buffer();
-    else if (machineType == MCH_MRDO || machineType == MCH_LADYBUG || machineType == MCH_STARFORCE)
+    else if (machineType == MCH_MRDO || machineType == MCH_LADYBUG || machineType == MCH_STARFORCE || machineType == MCH_VANVAN)
       sn76489_render_buffer();
     else if (machineType == MCH_DKONG || machineType == MCH_DKONGJR)
       i8048_render_buffer();
