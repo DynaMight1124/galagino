@@ -31,6 +31,7 @@
 #define ENABLE_SCRAMBLE
 #define ENABLE_SUPERCOBRA
 #define ENABLE_DKONG3
+#define ENABLE_POOYAN
 
 #ifdef ENABLE_PACMAN  
   #include "machines/pacman/pacman.h"
@@ -147,6 +148,10 @@
 #ifdef ENABLE_DKONG3
   #include "machines/dkong3/dkong3.h"
 #endif
+#ifdef ENABLE_POOYAN
+  #include "machines/pooyan/pooyan.h"
+#endif
+
 
 // change machine order is possible here...
 machineBase *machines[] = {
@@ -235,7 +240,10 @@ machineBase *machines[] = {
   new supercobra(),
 #endif
 #ifdef ENABLE_DKONG3
-  new dkong3()
+  new dkong3(),
+#endif
+#ifdef ENABLE_POOYAN
+  new pooyan()
 #endif
 };
 
